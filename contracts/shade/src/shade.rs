@@ -1,4 +1,4 @@
-use crate::components::{admin as admin_component, core};
+use crate::components::{admin as admin_component, core as core_component};
 use crate::errors::ContractError;
 use crate::events;
 use crate::interface::ShadeTrait;
@@ -25,7 +25,7 @@ impl ShadeTrait for Shade {
         events::publish_initialized_event(&env, admin, env.ledger().timestamp());
     }
     fn get_admin(env: Env) -> Address {
-        core::get_admin(&env)
+        core_component::get_admin(&env)
     }
 
     fn add_accepted_token(env: Env, admin: Address, token: Address) {
