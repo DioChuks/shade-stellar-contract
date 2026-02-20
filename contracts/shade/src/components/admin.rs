@@ -1,0 +1,63 @@
+use crate::components::core;
+use crate::events;
+use crate::types::DataKey;
+use soroban_sdk::{token, Address, Env, Vec};
+
+pub fn add_accepted_token(env: &Env, admin: &Address, token: &Address) {
+    core::assert_admin(env, admin);
+
+    // Fail if the address is not a token contract.
+    let _ = token::Client::new(env, token).symbol();
+
+    let mut accepted_tokens = get_accepted_tokens(env);
+    if !contains_token(&accepted_tokens, token) {
+        accepted_tokens.push_back(token.clone());
+        env.storage()
+            .persistent()
+            .set(&DataKey::AcceptedTokens, &accepted_tokens);
+        events::publish_token_added_event(env, token.clone(), env.ledger().timestamp());
+    }
+}
+
+pub fn remove_accepted_token(env: &Env, admin: &Address, token: &Address) {
+    core::assert_admin(env, admin);
+
+    let accepted_tokens = get_accepted_tokens(env);
+    let mut updated_tokens = Vec::new(env);
+    let mut removed = false;
+
+    for accepted_token in accepted_tokens.iter() {
+        if accepted_token == *token {
+            removed = true;
+        } else {
+            updated_tokens.push_back(accepted_token);
+        }
+    }
+
+    if removed {
+        env.storage()
+            .persistent()
+            .set(&DataKey::AcceptedTokens, &updated_tokens);
+        events::publish_token_removed_event(env, token.clone(), env.ledger().timestamp());
+    }
+}
+
+pub fn is_accepted_token(env: &Env, token: &Address) -> bool {
+    contains_token(&get_accepted_tokens(env), token)
+}
+
+fn get_accepted_tokens(env: &Env) -> Vec<Address> {
+    env.storage()
+        .persistent()
+        .get(&DataKey::AcceptedTokens)
+        .unwrap_or_else(|| Vec::new(env))
+}
+
+fn contains_token(accepted_tokens: &Vec<Address>, token: &Address) -> bool {
+    for accepted_token in accepted_tokens.iter() {
+        if accepted_token == *token {
+            return true;
+        }
+    }
+    false
+}

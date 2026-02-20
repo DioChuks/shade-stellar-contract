@@ -1,3 +1,4 @@
+use crate::components::{admin as admin_component, core as core_component};
 use crate::errors::ContractError;
 use crate::events;
 use crate::interface::ShadeTrait;
@@ -24,9 +25,18 @@ impl ShadeTrait for Shade {
         events::publish_initialized_event(&env, admin, env.ledger().timestamp());
     }
     fn get_admin(env: Env) -> Address {
-        env.storage()
-            .persistent()
-            .get(&DataKey::Admin)
-            .unwrap_or_else(|| panic_with_error!(&env, ContractError::NotInitialized))
+        core_component::get_admin(&env)
+    }
+
+    fn add_accepted_token(env: Env, admin: Address, token: Address) {
+        admin_component::add_accepted_token(&env, &admin, &token);
+    }
+
+    fn remove_accepted_token(env: Env, admin: Address, token: Address) {
+        admin_component::remove_accepted_token(&env, &admin, &token);
+    }
+
+    fn is_accepted_token(env: Env, token: Address) -> bool {
+        admin_component::is_accepted_token(&env, &token)
     }
 }

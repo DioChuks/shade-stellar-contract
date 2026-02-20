@@ -4,4 +4,7 @@ use soroban_sdk::{contracttrait, Address, Env};
 pub trait ShadeTrait {
     fn initialize(env: Env, admin: Address);
     fn get_admin(env: Env) -> Address;
+    fn add_accepted_token(env: Env, admin: Address, token: Address);
+    fn remove_accepted_token(env: Env, admin: Address, token: Address);
+    fn is_accepted_token(env: Env, token: Address) -> bool;
 }
