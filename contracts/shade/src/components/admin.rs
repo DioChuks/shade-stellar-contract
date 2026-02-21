@@ -1,9 +1,10 @@
-use crate::components::core;
+use crate::components::{core, reentrancy};
 use crate::events;
 use crate::types::DataKey;
 use soroban_sdk::{token, Address, Env, Vec};
 
 pub fn add_accepted_token(env: &Env, admin: &Address, token: &Address) {
+    reentrancy::enter(env);
     core::assert_admin(env, admin);
 
     // Fail if the address is not a token contract.
@@ -17,9 +18,11 @@ pub fn add_accepted_token(env: &Env, admin: &Address, token: &Address) {
             .set(&DataKey::AcceptedTokens, &accepted_tokens);
         events::publish_token_added_event(env, token.clone(), env.ledger().timestamp());
     }
+    reentrancy::exit(env);
 }
 
 pub fn remove_accepted_token(env: &Env, admin: &Address, token: &Address) {
+    reentrancy::enter(env);
     core::assert_admin(env, admin);
 
     let accepted_tokens = get_accepted_tokens(env);
@@ -40,6 +43,7 @@ pub fn remove_accepted_token(env: &Env, admin: &Address, token: &Address) {
             .set(&DataKey::AcceptedTokens, &updated_tokens);
         events::publish_token_removed_event(env, token.clone(), env.ledger().timestamp());
     }
+    reentrancy::exit(env);
 }
 
 pub fn is_accepted_token(env: &Env, token: &Address) -> bool {
