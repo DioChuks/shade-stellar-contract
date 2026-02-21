@@ -5,3 +5,4 @@ pub mod invoice;
 pub mod merchant;
 pub mod pausable;
 pub mod reentrancy;
+pub mod upgrade;
