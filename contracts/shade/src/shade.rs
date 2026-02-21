@@ -1,11 +1,11 @@
 use crate::components::{
-    admin as admin_component, core as core_component, invoice as invoice_component,
-    merchant as merchant_component, pausable as pausable_component,
+    access_control as access_control_component, admin as admin_component, core as core_component,
+    invoice as invoice_component, merchant as merchant_component, pausable as pausable_component,
 };
 use crate::errors::ContractError;
 use crate::events;
 use crate::interface::ShadeTrait;
-use crate::types::{ContractInfo, DataKey, Invoice, InvoiceFilter, Merchant, MerchantFilter};
+use crate::types::{ContractInfo, DataKey, Invoice, InvoiceFilter, Merchant, MerchantFilter, Role};
 use soroban_sdk::{contract, contractimpl, panic_with_error, Address, Env, String, Vec};
 
 #[contract]
@@ -75,6 +75,18 @@ impl ShadeTrait for Shade {
 
     fn get_invoice(env: Env, invoice_id: u64) -> Invoice {
         invoice_component::get_invoice(&env, invoice_id)
+    }
+
+    fn grant_role(env: Env, admin: Address, user: Address, role: Role) {
+        access_control_component::grant_role(&env, &admin, &user, role);
+    }
+
+    fn revoke_role(env: Env, admin: Address, user: Address, role: Role) {
+        access_control_component::revoke_role(&env, &admin, &user, role);
+    }
+
+    fn has_role(env: Env, user: Address, role: Role) -> bool {
+        access_control_component::has_role(&env, &user, role)
     }
 
     fn get_invoices(env: Env, filter: InvoiceFilter) -> Vec<Invoice> {
