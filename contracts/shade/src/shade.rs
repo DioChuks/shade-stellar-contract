@@ -5,10 +5,8 @@ use crate::components::{
 use crate::errors::ContractError;
 use crate::events;
 use crate::interface::ShadeTrait;
-use crate::types::{ContractInfo, DataKey};
-use soroban_sdk::{contract, contractimpl, panic_with_error, Address, BytesN, Env};
 use crate::types::{ContractInfo, DataKey, Invoice, InvoiceFilter, Merchant, MerchantFilter, Role};
-use soroban_sdk::{contract, contractimpl, panic_with_error, Address, Env, String, Vec};
+use soroban_sdk::{contract, contractimpl, panic_with_error, Address, BytesN, Env, String, Vec};
 
 #[contract]
 pub struct Shade;

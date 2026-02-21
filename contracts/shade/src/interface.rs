@@ -1,6 +1,5 @@
-use soroban_sdk::{contracttrait, Address, BytesN, Env};
 use crate::types::{Invoice, InvoiceFilter, Merchant, MerchantFilter, Role};
-use soroban_sdk::{contracttrait, Address, Env, String, Vec};
+use soroban_sdk::{contracttrait, Address, BytesN, Env, String, Vec};
 
 #[contracttrait]
 pub trait ShadeTrait {

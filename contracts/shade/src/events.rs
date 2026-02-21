@@ -39,6 +39,12 @@ pub struct ContractUpgradedEvent {
 pub fn publish_contract_upgraded_event(env: &Env, new_wasm_hash: BytesN<32>, timestamp: u64) {
     ContractUpgradedEvent {
         new_wasm_hash,
+        timestamp,
+    }
+    .publish(env);
+}
+
+#[contractevent]
 pub struct MerchantRegisteredEvent {
     pub merchant: Address,
     pub merchant_id: u64,
