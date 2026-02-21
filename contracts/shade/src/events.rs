@@ -52,6 +52,22 @@ pub fn publish_merchant_registered_event(
 }
 
 #[contractevent]
+pub struct MerchantStatusChangedEvent {
+    pub merchant_id: u64,
+    pub active: bool,
+    pub timestamp: u64,
+}
+
+pub fn publish_merchant_status_changed_event(env: &Env, merchant_id: u64, active: bool, timestamp: u64) {
+    MerchantStatusChangedEvent {
+        merchant_id,
+        active,
+        timestamp,
+    }
+    .publish(env);
+}
+
+#[contractevent]
 pub struct InvoiceCreatedEvent {
     pub invoice_id: u64,
     pub merchant: Address,

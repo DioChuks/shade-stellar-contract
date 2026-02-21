@@ -55,6 +55,14 @@ impl ShadeTrait for Shade {
         merchant_component::is_merchant(&env, &merchant)
     }
 
+    fn set_merchant_status(env: Env, admin: Address, merchant_id: u64, status: bool) {
+        merchant_component::set_merchant_status(&env, &admin, merchant_id, status);
+    }
+
+    fn is_merchant_active(env: Env, merchant_id: u64) -> bool {
+        merchant_component::is_merchant_active(&env, merchant_id)
+    }
+
     fn create_invoice(
         env: Env,
         merchant: Address,
