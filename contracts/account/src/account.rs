@@ -1,7 +1,7 @@
 use crate::errors::ContractError;
 use crate::events::{
     publish_account_initialized_event, publish_account_verified_event,
-    publish_refund_processed_event, publish_token_added_event,
+    publish_refund_processed_event, publish_token_added_event, publish_withdrawal_event,
 };
 use crate::interface::MerchantAccountTrait;
 use crate::types::{AccountInfo, DataKey, TokenBalance};
@@ -14,6 +14,13 @@ fn get_manager(env: &Env) -> Address {
     env.storage()
         .persistent()
         .get(&DataKey::Manager)
+        .unwrap_or_else(|| panic_with_error!(env, ContractError::NotInitialized))
+}
+
+fn get_merchant(env: &Env) -> Address {
+    env.storage()
+        .persistent()
+        .get(&DataKey::Merchant)
         .unwrap_or_else(|| panic_with_error!(env, ContractError::NotInitialized))
 }
 
@@ -143,5 +150,26 @@ impl MerchantAccountTrait for MerchantAccount {
             .persistent()
             .get(&DataKey::Verified)
             .unwrap_or(false)
+    }
+
+    fn withdraw(env: Env, token: Address, amount: i128) {
+        let merchant = get_merchant(&env);
+        merchant.require_auth();
+
+        let tracked_tokens = get_tracked_tokens(&env);
+        if !token_exists(&tracked_tokens, &token) {
+            panic_with_error!(&env, ContractError::TokenNotFound);
+        }
+
+        let contract_address = env.current_contract_address();
+        let token_client = token::TokenClient::new(&env, &token);
+        let balance = token_client.balance(&contract_address);
+
+        if balance < amount {
+            panic_with_error!(&env, ContractError::InsufficientBalance);
+        }
+
+        token_client.transfer(&contract_address, &merchant, &amount);
+        publish_withdrawal_event(&env, token, amount, merchant, env.ledger().timestamp());
     }
 }

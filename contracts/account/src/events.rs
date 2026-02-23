@@ -63,3 +63,27 @@ pub fn publish_refund_processed_event(
     }
     .publish(env);
 }
+
+#[contractevent]
+pub struct WithdrawalEvent {
+    pub token: Address,
+    pub amount: i128,
+    pub recipient: Address,
+    pub timestamp: u64,
+}
+
+pub fn publish_withdrawal_event(
+    env: &Env,
+    token: Address,
+    amount: i128,
+    recipient: Address,
+    timestamp: u64,
+) {
+    WithdrawalEvent {
+        token,
+        amount,
+        recipient,
+        timestamp,
+    }
+    .publish(env);
+}
