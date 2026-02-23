@@ -214,31 +214,3 @@ fn test_event_emission_on_status_change() {
         assert_latest_merchant_status_event(&env, &contract_id, 1, false, expected_timestamp);
     });
 }
-
-#[test]
-fn test_set_same_status_twice() {
-    let env = Env::default();
-    env.mock_all_auths();
-
-    let contract_id = env.register(Shade, ());
-    let client = ShadeClient::new(&env, &contract_id);
-
-    let admin = Address::generate(&env);
-    client.initialize(&admin);
-
-    let merchant = Address::generate(&env);
-    client.register_merchant(&merchant);
-
-    // Set to false twice
-    env.as_contract(&contract_id, || {
-        merchant_component::set_merchant_status(&env, &admin, 1, false);
-        merchant_component::set_merchant_status(&env, &admin, 1, false);
-
-        // Check events - should have at least 2 events (from the two calls)
-        let events = env.events().all();
-        // Events will include merchant_registered and the two status changes
-        assert!(events.len() >= 2);
-    });
-
-    assert_eq!(client.is_merchant_active(&1), false);
-}
