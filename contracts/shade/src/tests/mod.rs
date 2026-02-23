@@ -1,5 +1,6 @@
 pub mod test;
 pub mod test_accepted_tokens;
+pub mod test_admin_payment;
 pub mod test_fees;
 pub mod test_invoice;
 pub mod test_merchant;

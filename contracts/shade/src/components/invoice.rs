@@ -1,8 +1,8 @@
-use crate::components::merchant;
+use crate::components::{access_control, merchant};
 use crate::errors::ContractError;
 use crate::events;
-use crate::types::{DataKey, Invoice, InvoiceFilter, InvoiceStatus};
-use soroban_sdk::{panic_with_error, Address, Env, String, Vec};
+use crate::types::{DataKey, Invoice, InvoiceFilter, InvoiceStatus, Role};
+use soroban_sdk::{panic_with_error, token, Address, Env, String, Vec};
 
 pub fn create_invoice(
     env: &Env,
@@ -128,4 +128,63 @@ pub fn get_invoices(env: &Env, filter: InvoiceFilter) -> Vec<Invoice> {
     }
 
     invoices
+}
+
+pub fn pay_invoice_admin(env: &Env, admin_or_manager: &Address, invoice_id: u64) -> Invoice {
+    admin_or_manager.require_auth();
+
+    // Check authorization - must have admin or manager role
+    let has_admin_role = access_control::has_role(env, admin_or_manager, Role::Admin);
+    let has_manager_role = access_control::has_role(env, admin_or_manager, Role::Manager);
+
+    if !has_admin_role && !has_manager_role {
+        panic_with_error!(env, ContractError::NotAuthorized);
+    }
+
+    // Get the invoice
+    let mut invoice = get_invoice(env, invoice_id);
+
+    // Verify invoice status is Pending
+    if invoice.status != InvoiceStatus::Pending {
+        panic_with_error!(env, ContractError::InvalidInvoiceStatus);
+    }
+
+    // Get the fee for this token
+    use crate::components::admin as admin_component;
+    let fee = admin_component::get_fee(env, &invoice.token);
+
+    // Calculate amount to merchant
+    let merchant_amount = invoice.amount - fee;
+
+    // Get merchant info to verify it exists
+    let merchant = merchant::get_merchant(env, invoice.merchant_id);
+
+    // Transfer tokens from contract to merchant account
+    let contract_address = env.current_contract_address();
+    let token_client = token::Client::new(env, &invoice.token);
+
+    token_client.transfer(&contract_address, &merchant.address, &merchant_amount);
+
+    // Update invoice status
+    invoice.status = InvoiceStatus::Paid;
+    invoice.payer = Some(admin_or_manager.clone());
+    invoice.date_paid = Some(env.ledger().timestamp());
+
+    env.storage()
+        .persistent()
+        .set(&DataKey::Invoice(invoice_id), &invoice);
+
+    // Publish paid event
+    events::publish_invoice_paid_event(
+        env,
+        invoice_id,
+        invoice.merchant_id,
+        admin_or_manager.clone(),
+        invoice.amount,
+        fee,
+        invoice.token.clone(),
+        env.ledger().timestamp(),
+    );
+
+    invoice
 }

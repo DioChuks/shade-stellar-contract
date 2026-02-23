@@ -32,6 +32,7 @@ pub trait ShadeTrait {
     fn revoke_role(env: Env, admin: Address, user: Address, role: Role);
     fn has_role(env: Env, user: Address, role: Role) -> bool;
     fn get_invoices(env: Env, filter: InvoiceFilter) -> Vec<Invoice>;
+    fn pay_invoice_admin(env: Env, admin_or_manager: Address, invoice_id: u64) -> Invoice;
     fn pause(env: Env, admin: Address);
     fn unpause(env: Env, admin: Address);
     fn is_paused(env: Env) -> bool;

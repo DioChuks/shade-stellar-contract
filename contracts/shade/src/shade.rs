@@ -127,6 +127,11 @@ impl ShadeTrait for Shade {
         invoice_component::get_invoices(&env, filter)
     }
 
+    fn pay_invoice_admin(env: Env, admin_or_manager: Address, invoice_id: u64) -> Invoice {
+        pausable_component::assert_not_paused(&env);
+        invoice_component::pay_invoice_admin(&env, &admin_or_manager, invoice_id)
+    }
+
     fn pause(env: Env, admin: Address) {
         pausable_component::pause(&env, &admin);
     }
