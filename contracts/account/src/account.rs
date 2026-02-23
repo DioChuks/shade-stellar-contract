@@ -121,4 +121,21 @@ impl MerchantAccountTrait for MerchantAccount {
             .get(&DataKey::Verified)
             .unwrap_or(false)
     }
+
+    fn restrict_account(env: Env, status: bool) {
+        let manager = get_manager(&env);
+        manager.require_auth();
+
+        env.storage()
+            .persistent()
+            .set(&DataKey::Restricted, &status);
+        crate::events::publish_account_restricted_event(&env, status, env.ledger().timestamp());
+    }
+
+    fn is_restricted_account(env: Env) -> bool {
+        env.storage()
+            .persistent()
+            .get(&DataKey::Restricted)
+            .unwrap_or(false)
+    }
 }

@@ -7,6 +7,7 @@ pub enum DataKey {
     Verified,
     AccountInfo,
     TrackedTokens,
+    Restricted,
 }
 
 #[contracttype]

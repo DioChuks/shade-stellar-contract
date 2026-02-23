@@ -11,4 +11,6 @@ pub trait MerchantAccountTrait {
     fn get_balances(env: Env) -> Vec<TokenBalance>;
     fn verify_account(env: Env);
     fn is_verified_account(env: Env) -> bool;
+    fn restrict_account(env: Env, status: bool);
+    fn is_restricted_account(env: Env) -> bool;
 }
