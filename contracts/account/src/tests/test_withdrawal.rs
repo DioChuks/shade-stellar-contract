@@ -2,8 +2,11 @@
 
 use crate::account::MerchantAccount;
 use crate::account::MerchantAccountClient;
-use soroban_sdk::testutils::Address as _;
-use soroban_sdk::{Address, Env};
+use crate::events::WithdrawalToEvent;
+use soroban_sdk::testutils::{Address as _, Events as _, MockAuth, MockAuthInvoke};
+use soroban_sdk::{token, Address, Env, IntoVal, Map, Symbol, TryFromVal, Val};
+
+// ── Shared helpers ────────────────────────────────────────────────────────────
 
 fn setup_initialized_account(env: &Env) -> (Address, MerchantAccountClient<'_>, Address, Address) {
     let contract_id = env.register(MerchantAccount, ());
@@ -11,13 +14,10 @@ fn setup_initialized_account(env: &Env) -> (Address, MerchantAccountClient<'_>, 
 
     let merchant = Address::generate(env);
     let manager = Address::generate(env);
-    let merchant_id = 1;
+    let merchant_id = 1u64;
     client.initialize(&merchant, &manager, &merchant_id);
 
-    let token = create_test_token(env);
-    client.add_token(&token);
-
-    (contract_id, client, merchant, token)
+    (contract_id, client, merchant, manager)
 }
 
 fn create_test_token(env: &Env) -> Address {
