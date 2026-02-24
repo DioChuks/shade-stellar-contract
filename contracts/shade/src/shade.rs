@@ -181,4 +181,15 @@ impl ShadeTrait for Shade {
         pausable_component::assert_not_paused(&env);
         invoice_component::void_invoice(&env, &merchant, invoice_id);
     }
+
+    fn amend_invoice(
+        env: Env,
+        merchant: Address,
+        invoice_id: u64,
+        new_amount: Option<i128>,
+        new_description: Option<String>,
+    ) {
+        pausable_component::assert_not_paused(&env);
+        invoice_component::amend_invoice(&env, &merchant, invoice_id, new_amount, new_description);
+    }
 }
