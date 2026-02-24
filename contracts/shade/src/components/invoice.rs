@@ -318,3 +318,63 @@ pub fn void_invoice(env: &Env, merchant_address: &Address, invoice_id: u64) {
         env.ledger().timestamp(),
     );
 }
+
+pub fn amend_invoice(
+    env: &Env,
+    merchant_address: &Address,
+    invoice_id: u64,
+    new_amount: Option<i128>,
+    new_description: Option<String>,
+) {
+    merchant_address.require_auth();
+
+    // Get invoice
+    let mut invoice = get_invoice(env, invoice_id);
+
+    // Get merchant ID for ownership check
+    let merchant_id: u64 = env
+        .storage()
+        .persistent()
+        .get(&DataKey::MerchantId(merchant_address.clone()))
+        .unwrap_or_else(|| panic_with_error!(env, ContractError::NotAuthorized));
+
+    // Verify merchant owns this invoice
+    if invoice.merchant_id != merchant_id {
+        panic_with_error!(env, ContractError::NotAuthorized);
+    }
+
+    // Verify invoice status is Pending
+    if invoice.status != InvoiceStatus::Pending {
+        panic_with_error!(env, ContractError::InvalidInvoiceStatus);
+    }
+
+    let old_amount = invoice.amount;
+
+    // Update amount if provided
+    if let Some(amount) = new_amount {
+        if amount <= 0 {
+            panic_with_error!(env, ContractError::InvalidAmount);
+        }
+        invoice.amount = amount;
+    }
+
+    // Update description if provided
+    if let Some(description) = new_description {
+        invoice.description = description;
+    }
+
+    // Save updated invoice
+    env.storage()
+        .persistent()
+        .set(&DataKey::Invoice(invoice_id), &invoice);
+
+    // Emit event
+    events::publish_invoice_amended_event(
+        env,
+        invoice_id,
+        merchant_address.clone(),
+        old_amount,
+        invoice.amount,
+        env.ledger().timestamp(),
+    );
+}

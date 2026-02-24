@@ -347,3 +347,30 @@ pub fn publish_invoice_cancelled_event(
     }
     .publish(env);
 }
+
+#[contractevent]
+pub struct InvoiceAmendedEvent {
+    pub invoice_id: u64,
+    pub merchant: Address,
+    pub old_amount: i128,
+    pub new_amount: i128,
+    pub timestamp: u64,
+}
+
+pub fn publish_invoice_amended_event(
+    env: &Env,
+    invoice_id: u64,
+    merchant: Address,
+    old_amount: i128,
+    new_amount: i128,
+    timestamp: u64,
+) {
+    InvoiceAmendedEvent {
+        invoice_id,
+        merchant,
+        old_amount,
+        new_amount,
+        timestamp,
+    }
+    .publish(env);
+}
