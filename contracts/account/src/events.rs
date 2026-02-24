@@ -41,6 +41,13 @@ pub fn publish_account_verified_event(env: &Env, timestamp: u64) {
 }
 
 #[contractevent]
+pub struct AccountRestricted {
+    pub status: bool,
+    pub timestamp: u64,
+}
+
+pub fn publish_account_restricted_event(env: &Env, status: bool, timestamp: u64) {
+    AccountRestricted { status, timestamp }.publish(env);
 pub struct WithdrawalToEvent {
     pub token: Address,
     pub recipient: Address,

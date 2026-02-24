@@ -154,6 +154,14 @@ impl MerchantAccountTrait for MerchantAccount {
         env.storage()
             .persistent()
             .set(&DataKey::Restricted, &status);
+        crate::events::publish_account_restricted_event(&env, status, env.ledger().timestamp());
+    }
+
+    fn is_restricted_account(env: Env) -> bool {
+        env.storage()
+            .persistent()
+            .get(&DataKey::Restricted)
+            .unwrap_or(false)
         publish_account_restricted_event(&env, status, env.ledger().timestamp());
     }
 
