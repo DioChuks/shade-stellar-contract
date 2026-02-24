@@ -255,4 +255,27 @@ pub fn restrict_merchant_account(
         caller.clone(),
         env.ledger().timestamp(),
     );
+pub fn set_merchant_account(env: &Env, merchant: &Address, account: &Address) {
+    merchant.require_auth();
+
+    if !is_merchant(env, merchant) {
+        panic_with_error!(env, ContractError::MerchantNotFound);
+    }
+
+    let merchant_id: u64 = env
+        .storage()
+        .persistent()
+        .get(&DataKey::MerchantId(merchant.clone()))
+        .unwrap();
+
+    env.storage()
+        .persistent()
+        .set(&DataKey::MerchantAccount(merchant_id), account);
+}
+
+pub fn get_merchant_account(env: &Env, merchant_id: u64) -> Address {
+    env.storage()
+        .persistent()
+        .get(&DataKey::MerchantAccount(merchant_id))
+        .unwrap_or_else(|| panic_with_error!(env, ContractError::MerchantAccountNotSet))
 }
