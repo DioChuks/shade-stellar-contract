@@ -14,4 +14,5 @@ pub trait MerchantAccountTrait {
     fn is_verified_account(env: Env) -> bool;
     fn restrict_account(env: Env, status: bool);
     fn is_restricted_account(env: Env) -> bool;
+    fn withdraw_to(env: Env, token: Address, amount: i128, recipient: Address);
 }
