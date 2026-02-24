@@ -8,6 +8,7 @@ pub trait ShadeTrait {
     fn add_accepted_token(env: Env, admin: Address, token: Address);
     fn remove_accepted_token(env: Env, admin: Address, token: Address);
     fn is_accepted_token(env: Env, token: Address) -> bool;
+    fn set_account_wasm_hash(env: Env, admin: Address, wasm_hash: soroban_sdk::BytesN<32>);
     fn set_fee(env: Env, admin: Address, token: Address, fee: i128);
     fn get_fee(env: Env, token: Address) -> i128;
     fn register_merchant(env: Env, merchant: Address);

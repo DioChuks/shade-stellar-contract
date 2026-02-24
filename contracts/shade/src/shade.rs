@@ -46,6 +46,10 @@ impl ShadeTrait for Shade {
         admin_component::is_accepted_token(&env, &token)
     }
 
+    fn set_account_wasm_hash(env: Env, admin: Address, wasm_hash: soroban_sdk::BytesN<32>) {
+        admin_component::set_account_wasm_hash(&env, &admin, &wasm_hash);
+    }
+
     fn set_fee(env: Env, admin: Address, token: Address, fee: i128) {
         pausable_component::assert_not_paused(&env);
         admin_component::set_fee(&env, &admin, &token, fee);
