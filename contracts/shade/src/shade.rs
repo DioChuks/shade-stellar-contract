@@ -224,3 +224,4 @@ impl ShadeTrait for Shade {
         invoice_component::amend_invoice(&env, &merchant, invoice_id, new_amount, new_description);
     }
 }
+
