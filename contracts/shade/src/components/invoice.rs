@@ -142,7 +142,7 @@ pub fn create_invoice_signed(
         .persistent()
         .set(&DataKey::InvoiceCount, &new_invoice_id);
 
-    // 7. Emit standard InvoiceCreated event
+    // 7. Emit standardInvoiceCreated event
     events::publish_invoice_created_event(
         env,
         new_invoice_id,
