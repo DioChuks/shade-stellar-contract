@@ -494,6 +494,21 @@ pub fn publish_subscription_cancelled_event(
     SubscriptionCancelledEvent {
         subscription_id,
         cancelled_by,
+pub struct NonceInvalidatedEvent {
+    pub merchant: Address,
+    pub nonce: BytesN<32>,
+    pub timestamp: u64,
+}
+
+pub fn publish_nonce_invalidated_event(
+    env: &Env,
+    merchant: Address,
+    nonce: BytesN<32>,
+    timestamp: u64,
+) {
+    NonceInvalidatedEvent {
+        merchant,
+        nonce,
         timestamp,
     }
     .publish(env);
